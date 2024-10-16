@@ -81,15 +81,18 @@ public class HockeyJuego extends JPanel {
 
     private void verificarGol() {
         // Verificar gol solo si el disco entra en el arco
-        if (discoX <= 50 && discoY >= 150 && discoY <= 250) {
+        // Arco jugador 1
+        if (discoX >= 0 && discoX <= 50 && discoY >= 175 && discoY <= 250) {
             // Solo contabiliza si el disco está completamente dentro del arco
-            if (discoX <= 50 && discoX >= 0 && discoY >= 150 && discoY <= 250) {
+            if (discoX <= 50) {
                 golesJugador2++;
                 reiniciarDisco();
             }
-        } else if (discoX >= getWidth() - 60 && discoY >= 150 && discoY <= 250) {
+        } 
+        // Arco jugador 2
+        else if (discoX >= getWidth() - 60 && discoX <= getWidth() - 10 && discoY >= 175 && discoY <= 250) {
             // Solo contabiliza si el disco está completamente dentro del arco
-            if (discoX >= getWidth() - 60 && discoX <= getWidth() && discoY >= 150 && discoY <= 250) {
+            if (discoX >= getWidth() - 60) {
                 golesJugador1++;
                 reiniciarDisco();
             }
@@ -113,9 +116,9 @@ public class HockeyJuego extends JPanel {
 
         // Dibujar arcos fijos
         g.setColor(Color.RED);
-        g.fillArc(0, 150, 50, 100, 90, 180); // Arco jugador 1
+        g.fillArc(0, 175, 50, 100, 90, 180); // Arco jugador 1
         g.setColor(Color.BLUE);
-        g.fillArc(getWidth() - 50, 150, 50, 100, -90, 180); // Arco jugador 2
+        g.fillArc(getWidth() - 50, 175, 50, 100, -90, 180); // Arco jugador 2
 
         // Dibujar jugadores como círculos
         g.setColor(Color.RED);
