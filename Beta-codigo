@@ -1,0 +1,111 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class HockeyJuego extends JPanel {
+    private int jugador1X = 50, jugador1Y = 100; // Jugador 1 (WASD)
+    private int jugador2X = 350, jugador2Y = 100; // Jugador 2 (Flechas)
+    private int discoX = 200, discoY = 100;
+    private int discoVelX = 3, discoVelY = 3; // Velocidades del disco
+    private int golesJugador1 = 0, golesJugador2 = 0;
+
+    private boolean[] teclasPresionadas = new boolean[256]; // Para controlar las teclas
+
+    public HockeyJuego() {
+        setFocusable(true);
+        setBackground(Color.BLACK);
+        setPreferredSize(new Dimension(400, 200));
+
+        addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                teclasPresionadas[e.getKeyCode()] = true;
+            }
+
+            public void keyReleased(KeyEvent e) {
+                teclasPresionadas[e.getKeyCode()] = false;
+            }
+        });
+
+        Timer timer = new Timer(20, this::actualizarJuego);
+        timer.start();
+    }
+
+    private void actualizarJuego(ActionEvent e) {
+        moverJugadores();
+        moverDisco();
+        verificarGol();
+        repaint();
+    }
+
+    private void moverJugadores() {
+        if (teclasPresionadas[KeyEvent.VK_W]) jugador1Y = Math.max(jugador1Y - 5, 0);
+        if (teclasPresionadas[KeyEvent.VK_S]) jugador1Y = Math.min(jugador1Y + 5, getHeight() - 20);
+        if (teclasPresionadas[KeyEvent.VK_A]) jugador1X = Math.max(jugador1X - 5, 0);
+        if (teclasPresionadas[KeyEvent.VK_D]) jugador1X = Math.min(jugador1X + 5, getWidth() - 10);
+        
+        if (teclasPresionadas[KeyEvent.VK_UP]) jugador2Y = Math.max(jugador2Y - 5, 0);
+        if (teclasPresionadas[KeyEvent.VK_DOWN]) jugador2Y = Math.min(jugador2Y + 5, getHeight() - 20);
+        if (teclasPresionadas[KeyEvent.VK_LEFT]) jugador2X = Math.max(jugador2X - 5, 0);
+        if (teclasPresionadas[KeyEvent.VK_RIGHT]) jugador2X = Math.min(jugador2X + 5, getWidth() - 10);
+    }
+
+    private void moverDisco() {
+        discoX += discoVelX;
+        discoY += discoVelY;
+
+        // Rebote en los bordes
+        if (discoY <= 0 || discoY >= getHeight() - 10) {
+            discoVelY = -discoVelY; // Cambia la dirección vertical
+        }
+
+        // Rebote en los jugadores
+        if ((discoX <= jugador1X + 10 && discoX >= jugador1X && discoY >= jugador1Y && discoY <= jugador1Y + 20) ||
+            (discoX >= jugador2X - 10 && discoX <= jugador2X && discoY >= jugador2Y && discoY <= jugador2Y + 20)) {
+            discoVelX = -discoVelX; // Cambia la dirección horizontal
+        }
+    }
+
+    private void verificarGol() {
+        if (discoX <= 0) {
+            golesJugador2++;
+            reiniciarDisco();
+        } else if (discoX >= getWidth()) {
+            golesJugador1++;
+            reiniciarDisco();
+        }
+
+        if (golesJugador1 == 7 || golesJugador2 == 7) {
+            JOptionPane.showMessageDialog(this, "¡Fin del juego! " + (golesJugador1 == 7 ? "Jugador 1 gana!" : "Jugador 2 gana!"));
+            System.exit(0);
+        }
+    }
+
+    private void reiniciarDisco() {
+        discoX = 200;
+        discoY = 100;
+        discoVelX = 3 * (Math.random() > 0.5 ? 1 : -1); // Reinicia la dirección horizontal
+        discoVelY = 3 * (Math.random() > 0.5 ? 1 : -1); // Reinicia la dirección vertical
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.setColor(Color.WHITE);
+        g.fillRect(jugador1X, jugador1Y, 10, 20); // Jugador 1
+        g.fillRect(jugador2X, jugador2Y, 10, 20); // Jugador 2
+        g.fillOval(discoX, discoY, 10, 10); // Disco
+        g.drawString("Goles Jugador 1: " + golesJugador1, 10, 10);
+        g.drawString("Goles Jugador 2: " + golesJugador2, 300, 10);
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Hockey de Mesa");
+        HockeyJuego juego = new HockeyJuego();
+        frame.add(juego);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
