@@ -1,0 +1,38 @@
+private void moverDisco() {
+    discoX += discoVelX;
+    discoY += discoVelY;
+
+    // Rebote en los bordes
+    if (discoY <= 30 || discoY >= getHeight() - 10) {
+        discoVelY = -discoVelY; // Cambia la dirección vertical
+    }
+
+    if (discoX <= 0 || discoX >= getWidth() - 10) {
+        discoVelX = -discoVelX; // Cambia la dirección horizontal
+    }
+
+    // Rebote en los jugadores
+    if (colisionConJugador(jugador1X, jugador1Y) || colisionConJugador(jugador2X, jugador2Y)) {
+        discoVelX = -discoVelX; // Cambia la dirección horizontal
+    }
+
+    verificarGol();
+}
+
+private boolean colisionConJugador(int jugadorX, int jugadorY) {
+    int radioJugador = 15; // Radio del jugador
+    int radioDisco = 5; // Radio del disco
+    int centroJugadorX = jugadorX + radioJugador;
+    int centroJugadorY = jugadorY + radioJugador;
+    int centroDiscoX = discoX + radioDisco;
+    int centroDiscoY = discoY + radioDisco;
+
+    // Calcular la distancia entre los centros del jugador y el disco
+    int distanciaX = centroJugadorX - centroDiscoX;
+    int distanciaY = centroJugadorY - centroDiscoY;
+    int distanciaCuadrada = distanciaX * distanciaX + distanciaY * distanciaY;
+
+    // Comprobar si la distancia es menor que la suma de los radios al cuadrado
+    int sumaRadios = radioJugador + radioDisco;
+    return distanciaCuadrada < (sumaRadios * sumaRadios);
+}
