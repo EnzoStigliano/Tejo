@@ -1,0 +1,190 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class HockeyJuego extends JPanel {
+    private int jugador1X = 175, jugador1Y = 80; // Jugador 1 (WASD)
+    private int jugador2X = 175, jugador2Y = 500; // Jugador 2 (Flechas)
+    private int discoX = 200, discoY = 300;
+    private int discoVelX = 3, discoVelY = 3; // Velocidades del disco
+    private int golesJugador1 = 0, golesJugador2 = 0;
+    private int contador = 3; // Contador para la cuenta regresiva
+    private boolean reiniciando = false; // Estado para saber si estamos en cuenta regresiva
+
+    private boolean[] teclasPresionadas = new boolean[256]; // Para controlar las teclas
+
+    public HockeyJuego() {
+        setFocusable(true);
+        setBackground(Color.WHITE); // Fondo blanco
+        setPreferredSize(new Dimension(400, 650)); // Cancha con más espacio arriba
+
+        addKeyListener(new KeyAdapter() {
+            public void keyPressed(KeyEvent e) {
+                if (!reiniciando) {
+                    teclasPresionadas[e.getKeyCode()] = true;
+                }
+            }
+
+            public void keyReleased(KeyEvent e) {
+                teclasPresionadas[e.getKeyCode()] = false;
+            }
+        });
+
+        Timer timer = new Timer(20, this::actualizarJuego);
+        timer.start();
+    }
+
+    private void actualizarJuego(ActionEvent e) {
+        if (!reiniciando) {
+            moverJugadores();
+            moverDisco();
+        }
+        repaint();
+    }
+
+    private void moverJugadores() {
+        // Jugador 1 (mueve verticalmente con WASD)
+        if (teclasPresionadas[KeyEvent.VK_W]) jugador1Y = Math.max(jugador1Y - 5, 50); // Arriba
+        if (teclasPresionadas[KeyEvent.VK_S]) jugador1Y = Math.min(jugador1Y + 5, getHeight() - 30); // Abajo
+        if (teclasPresionadas[KeyEvent.VK_A]) jugador1X = Math.max(jugador1X - 5, 30); // Izquierda
+        if (teclasPresionadas[KeyEvent.VK_D]) jugador1X = Math.min(jugador1X + 5, getWidth() - 30); // Derecha
+
+        // Jugador 2 (mueve verticalmente con flechas)
+        if (teclasPresionadas[KeyEvent.VK_UP]) jugador2Y = Math.max(jugador2Y - 5, 50); // Arriba
+        if (teclasPresionadas[KeyEvent.VK_DOWN]) jugador2Y = Math.min(jugador2Y + 5, getHeight() - 30); // Abajo
+        if (teclasPresionadas[KeyEvent.VK_LEFT]) jugador2X = Math.max(jugador2X - 5, 30); // Izquierda
+        if (teclasPresionadas[KeyEvent.VK_RIGHT]) jugador2X = Math.min(jugador2X + 5, getWidth() - 30); // Derecha
+    }
+
+    private void moverDisco() {
+        discoX += discoVelX;
+        discoY += discoVelY;
+
+        // Rebote en los bordes superior e inferior
+        if (discoX <= 30 || discoX >= getWidth() - 10) {
+            discoVelX = -discoVelX; // Cambia la dirección horizontal
+        }
+
+        // Rebote en los lados izquierdo y derecho
+        if (discoY <= 50 || discoY >= getHeight() - 10) {
+            discoVelY = -discoVelY; // Cambia la dirección vertical
+        }
+
+        // Rebote en los jugadores
+        if (colisionConJugador(jugador1X, jugador1Y) || colisionConJugador(jugador2X, jugador2Y)) {
+            discoVelY = -discoVelY; // Cambia la dirección vertical
+        }
+
+        verificarGol();
+    }
+
+    private boolean colisionConJugador(int jugadorX, int jugadorY) {
+        int ladoJugador = 30; // Lado del cuadrado que representa al jugador
+        int radioJugador = 15; // Radio del jugador para ajustar el centro
+        Rectangle hitboxJugador = new Rectangle(jugadorX, jugadorY, ladoJugador, ladoJugador);
+
+        // Crear la hitbox del disco como un cuadrado de 10x10, centrado en el círculo
+        int radioDisco = 5; // Radio del disco
+        Rectangle hitboxDisco = new Rectangle(discoX - radioDisco, discoY - radioDisco, 10, 10);
+
+        return hitboxJugador.intersects(hitboxDisco);
+    }
+
+    private void verificarGol() {
+        // Verificar gol en los arcos superior e inferior
+        if (discoY <= 50 && discoX >= 175 && discoX <= 225) {
+            golesJugador2++;
+            reiniciarDisco();
+        } else if (discoY >= getHeight() - 30 && discoX >= 175 && discoX <= 225) {
+            golesJugador1++;
+            reiniciarDisco();
+        }
+    }
+
+    private void reiniciarDisco() {
+        if (!reiniciando) {
+            reiniciando = true;
+            contador = 3;
+            discoX = 200; // Resetear disco al centro
+            discoY = 300;
+
+            // Resetear posiciones de los jugadores
+            jugador1X = 175;
+            jugador1Y = 80;
+            jugador2X = 175;
+            jugador2Y = 500;
+
+            Timer cuentaRegresivaTimer = new Timer(1000, e -> {
+                if (contador > 0) {
+                    contador--;
+                } else {
+                    discoVelX = 3 * (Math.random() > 0.5 ? 1 : -1); // Direcciones aleatorias
+                    discoVelY = 3 * (Math.random() > 0.5 ? 1 : -1);
+                    reiniciando = false; // Finaliza la cuenta regresiva
+                    ((Timer) e.getSource()).stop(); // Detiene el timer
+                }
+                repaint();
+            });
+            cuentaRegresivaTimer.start();
+        }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // Dibujar bordes de la cancha
+        g.setColor(Color.BLACK);
+        g.drawRect(30, 64, getWidth() - 60, getHeight() - 79); // Bordes ajustados para igualar espacios
+
+        // Dibujar arcos
+        g.setColor(Color.RED);
+        g.fillArc(175, 50, 50, 30, 0, 180); // Arco superior
+        g.setColor(Color.BLUE);
+        g.fillArc(175, getHeight() - 30, 50, 30, 180, 180); // Arco inferior
+
+        // Dibujar jugadores como cuadrados
+        g.setColor(Color.RED);
+        g.fillOval(jugador1X, jugador1Y, 30, 30); // Jugador 1
+        g.setColor(Color.BLUE);
+        g.fillOval(jugador2X, jugador2Y, 30, 30); // Jugador 2
+        
+        // Dibujar disco
+        g.setColor(Color.BLACK);
+        g.fillOval(discoX, discoY, 10, 10); // Disco
+        
+        // Dibujar goles y marcador
+        g.setFont(new Font("Arial", Font.BOLD, 30));
+        
+        // Goles del Jugador 1 en rojo
+        g.setColor(Color.RED);
+        g.drawString(String.valueOf(golesJugador1), 120, 40); // Marcador del jugador 1
+
+        // Goles del Jugador 2 en azul
+        g.setColor(Color.BLUE);
+        g.drawString(String.valueOf(golesJugador2), 260, 40); // Marcador del jugador 2
+        
+        // Dibujar "Goles" en negro y centrado
+        g.setColor(Color.BLACK);
+        g.drawString("Goles", 160, 40); // Texto en el centro de ambos marcadores
+
+        // Dibujar cuenta regresiva
+        if (reiniciando) {
+            g.setFont(new Font("Arial", Font.BOLD, 20)); // Tamaño más pequeño
+            g.setColor(Color.BLACK);
+            g.drawString(String.valueOf(contador), discoX - 25, discoY + 15); // Número a la izquierda
+            g.drawString(String.valueOf(contador), discoX + 10, discoY + 15); // Número a la derecha
+        }
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Hockey de Mesa");
+        HockeyJuego juego = new HockeyJuego();
+        frame.add(juego);
+        frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}
