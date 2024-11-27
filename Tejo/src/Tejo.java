@@ -36,9 +36,9 @@ public class Tejo extends JPanel {
         setFocusable(true); // Permite que el panel reciba eventos de teclado
         setPreferredSize(new Dimension(400, 650)); // Define el tamaño del área de juego
 
-        // Intentamos cargar una imagen de fondo para el panel de juego
+        // Cargamos imágen de fondo
         try {
-            fondo = ImageIO.read(new File("./Fondo.png")); // Asegúrate de tener la imagen de fondo en la ubicación correcta
+            fondo = ImageIO.read(new File("./Fondo.png")); // Dirección de la cancha
         } catch (Exception e) {
             e.printStackTrace(); // Si no se puede cargar la imagen, se imprime el error
         }
@@ -59,7 +59,7 @@ public class Tejo extends JPanel {
         });
 
         // Creamos un temporizador que actualiza el juego cada 20 ms
-        Timer timer = new Timer(20, this::actualizarJuego);
+        Timer timer = new Timer(10, this::actualizarJuego);
         timer.start(); // Inicia el temporizador
     }
 
@@ -125,7 +125,7 @@ public class Tejo extends JPanel {
             discoVelY = -discoVelY; // Cambia la dirección vertical del disco
         }
 
-        // Rebote en los jugadores si el disco colide con sus posiciones
+        // Rebote en los jugadores si el disco coincide con sus posiciones
         if (colisionConJugador(jugador1X, jugador1Y) || colisionConJugador(jugador2X, jugador2Y)) {
             discoVelY = -discoVelY; // Cambia la dirección vertical del disco
         }
@@ -149,12 +149,12 @@ public class Tejo extends JPanel {
     // Método que verifica si se ha marcado un gol
     private void verificarGol() {
         // Gol para el jugador 2 (si el disco llega al área superior)
-        if (discoY <= 50 && discoX >= 175 && discoX <= 225) {
+        if (discoY <= 80 && discoX >= 175 && discoX <= 225) {
             golesJugador2++; // Se incrementa el marcador del jugador 2
             reiniciarDisco(); // Reinicia el disco después de un gol
         } 
         // Gol para el jugador 1 (si el disco llega al área inferior)
-        else if (discoY >= getHeight() - 30 && discoX >= 175 && discoX <= 225) {
+        else if (discoY >= getHeight() - 50 && discoX >= 175 && discoX <= 225) {
             golesJugador1++; // Se incrementa el marcador del jugador 1
             reiniciarDisco(); // Reinicia el disco después de un gol
         }
@@ -165,8 +165,8 @@ public class Tejo extends JPanel {
         if (!reiniciando) { // Si no estamos en cuenta regresiva
             reiniciando = true; // Activamos el estado de cuenta regresiva
             contador = 3; // Establecemos el contador en 3 segundos
-            discoX = 200; // Reiniciamos la posición del disco
-            discoY = 300;
+            discoX = 197; // Reiniciamos la posición del disco
+            discoY = 346;
 
             // Reiniciamos las posiciones de los jugadores
             jugador1X = 175;
