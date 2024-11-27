@@ -74,60 +74,56 @@ public class Tejo extends JPanel {
 
     // Método que maneja el movimiento de los jugadores
     private void moverJugadores() {
-        // Movimiento del jugador 1 (WASD)
-        if (teclasPresionadas[KeyEvent.VK_W]) { // Si se presiona 'W', mover hacia arriba
-            jugador1Y = Math.max(jugador1Y - 5, 82); // No permitir que se salga por el borde superior
+        if (teclasPresionadas[KeyEvent.VK_W]) {
+            jugador1Y = Math.max(jugador1Y - 5, 82);
         }
-        if (teclasPresionadas[KeyEvent.VK_S]) { // Si se presiona 'S', mover hacia abajo
-            jugador1Y = Math.min(jugador1Y + 5, getHeight() - 35); // No permitir que se salga por el borde inferior
+        if (teclasPresionadas[KeyEvent.VK_S]) {
+            jugador1Y = Math.min(jugador1Y + 5, getHeight() - 60); // Ajuste para 25 píxeles del borde inferior
         }
-        if (teclasPresionadas[KeyEvent.VK_A]) { // Si se presiona 'A', mover hacia la izquierda
-            jugador1X = Math.max(jugador1X - 5, 30); // No permitir que se salga por el borde izquierdo
+        if (teclasPresionadas[KeyEvent.VK_A]) {
+            jugador1X = Math.max(jugador1X - 5, 30);
         }
-        if (teclasPresionadas[KeyEvent.VK_D]) { // Si se presiona 'D', mover hacia la derecha
-            jugador1X = Math.min(jugador1X + 5, getWidth() - 60); // No permitir que se salga por el borde derecho
+        if (teclasPresionadas[KeyEvent.VK_D]) {
+            jugador1X = Math.min(jugador1X + 5, getWidth() - 60);
         }
-
-        // Movimiento del jugador 2 (flechas)
-        if (teclasPresionadas[KeyEvent.VK_UP]) { // Si se presiona la flecha hacia arriba
-            jugador2Y = Math.max(jugador2Y - 5, 82); // No permitir que se salga por el borde superior
+        if (teclasPresionadas[KeyEvent.VK_UP]) {
+            jugador2Y = Math.max(jugador2Y - 5, 82);
         }
-        if (teclasPresionadas[KeyEvent.VK_DOWN]) { // Si se presiona la flecha hacia abajo
-            jugador2Y = Math.min(jugador2Y + 5, getHeight() - 35); // No permitir que se salga por el borde inferior
+        if (teclasPresionadas[KeyEvent.VK_DOWN]) {
+            jugador2Y = Math.min(jugador2Y + 5, getHeight() - 60); // Ajuste para 25 píxeles del borde inferior
         }
-        if (teclasPresionadas[KeyEvent.VK_LEFT]) { // Si se presiona la flecha hacia la izquierda
-            jugador2X = Math.max(jugador2X - 5, 30); // No permitir que se salga por el borde izquierdo
+        if (teclasPresionadas[KeyEvent.VK_LEFT]) {
+            jugador2X = Math.max(jugador2X - 5, 30);
         }
-        if (teclasPresionadas[KeyEvent.VK_RIGHT]) { // Si se presiona la flecha hacia la derecha
-            jugador2X = Math.min(jugador2X + 5, getWidth() - 60); // No permitir que se salga por el borde derecho
+        if (teclasPresionadas[KeyEvent.VK_RIGHT]) {
+            jugador2X = Math.min(jugador2X + 5, getWidth() - 60);
         }
     }
 
+
     // Método que maneja el movimiento del disco
     private void moverDisco() {
-        discoX += discoVelX; // Actualiza la posición horizontal del disco
-        discoY += discoVelY; // Actualiza la posición vertical del disco
+        discoX += discoVelX;
+        discoY += discoVelY;
 
         // Rebote en los bordes izquierdo y derecho del área de juego
-        if (discoX <= 30 || discoX >= getWidth() - 40) {
-            discoVelX = -discoVelX; // Cambia la dirección horizontal del disco
+        if (discoX <= 25 || discoX >= getWidth() - 35) {
+            discoVelX = -discoVelX;
         }
 
-        // Rebote en el borde superior (solo dentro del área entre 82px y 112px de cada lado)
-        if (discoY <= 82) {
-            if (discoX >= 30 && discoX <= 112 || discoX >= getWidth() - 112 && discoX <= getWidth() - 30) {
-                discoVelY = -discoVelY; // Cambia la dirección vertical del disco
-            }
+        // Rebote en el borde superior (bajado 50 píxeles en total)
+        if (discoY <= 75) {
+            discoVelY = -discoVelY;
         }
 
         // Rebote en el borde inferior
         if (discoY >= getHeight() - 35) {
-            discoVelY = -discoVelY; // Cambia la dirección vertical del disco
+            discoVelY = -discoVelY;
         }
 
         // Rebote en los jugadores si el disco coincide con sus posiciones
         if (colisionConJugador(jugador1X, jugador1Y) || colisionConJugador(jugador2X, jugador2Y)) {
-            discoVelY = -discoVelY; // Cambia la dirección vertical del disco
+            discoVelY = -discoVelY;
         }
 
         // Verificar si el disco ha hecho un gol
